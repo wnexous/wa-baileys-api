@@ -9,7 +9,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db": "docker run -d -p 5432:5432 -v /tmp/database:/media/nexus/Deposito/Projetos/volumes/postgress -e POSTGRES_PASSWORD=password -e POSTGRES_USERNAME=root -d postgres"
+    "db": "docker run -p 5432:5432 -v /tmp/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=password -e POSTGRES_USERNAME=root postgres"
   },
   "repository": {
     "type": "git",

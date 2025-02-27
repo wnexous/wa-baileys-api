@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:slim
 
 WORKDIR /app
 
@@ -9,8 +9,13 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+RUN apt-get update -y \
+&& apt-get install -y openssl
+
 # Generate Prisma client
 RUN npm run prisma:generate
+
+RUN npx prisma migrate dev -n wa-baileys-api
 
 # Build TypeScript
 RUN npm run build
@@ -19,4 +24,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
