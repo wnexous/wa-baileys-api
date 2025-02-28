@@ -17,12 +17,15 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}
       - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key}
       - API_TOKEN=${API_TOKEN:-your-fixed-api-token}
+      - HOST=0.0.0.0
     volumes:
       - ./sessions:/app/sessions
     depends_on:
       db-init:
         condition: service_completed_successfully
     restart: unless-stopped
+    networks:
+      - wa_network
 
   db:
     image: postgres:14-alpine
@@ -41,6 +44,8 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - wa_network
 
   db-init:
     image: postgres:14-alpine
@@ -53,6 +58,12 @@ services:
       - ./init.sql:/init.sql
     command: psql -h db -U postgres -d wa_baileys_api -f /init.sql
     restart: "no"
+    networks:
+      - wa_network
 
 volumes:
   postgres_data:
+
+networks:
+  wa_network:
+    driver: bridge

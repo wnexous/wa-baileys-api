@@ -11,7 +11,8 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 3000;
+const port = parseInt(process.env.PORT || '3000', 10);
+const host = process.env.HOST || '0.0.0.0'; 
 
 // Initialize Prisma client
 export const prisma = new PrismaClient();
@@ -42,8 +43,8 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-const server = app.listen(port, async () => {
-  console.log(`Server running on port ${port}`);
+const server = app.listen(port, host, async () => {
+  console.log(`Server running on http://${host}:${port}`);
   
   try {
     // Check authentication configuration
