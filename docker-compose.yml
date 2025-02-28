@@ -10,17 +10,18 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL={DATABASE_URL}
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/wa_baileys_api?schema=public
       - SESSION_DIRECTORY=/app/sessions
-      - WEBHOOK_URL=${WEBHOOK_URL}
-      - ADMIN_USERNAME={ADMIN_USERNAME}
-      - ADMIN_PASSWORD={ADMIN_PASSWORD}
-      - JWT_SECRET={JWT_SECRET}
-      - API_TOKEN={API_TOKEN}
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-password}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-key}
+      - API_TOKEN=${API_TOKEN:-your-fixed-api-token}
     volumes:
       - ./sessions:/app/sessions
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   db:
@@ -33,6 +34,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
 volumes:

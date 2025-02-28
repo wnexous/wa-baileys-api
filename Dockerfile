@@ -15,13 +15,22 @@ RUN apt-get update -y \
 # Generate Prisma client
 RUN npm run prisma:generate
 
-RUN npx prisma migrate dev -n wa-baileys-api
-
 # Build TypeScript
 RUN npm run build
 
+# Create entrypoint script
+RUN echo '#!/bin/sh\n\
+echo "Running database migrations..."\n\
+npx prisma migrate deploy\n\
+echo "Starting application..."\n\
+exec "$@"' > /app/docker-entrypoint.sh && \
+chmod +x /app/docker-entrypoint.sh
+
 # Expose port
 EXPOSE 3000
+
+# Set entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 # Start the application
 CMD ["npm", "start"]
