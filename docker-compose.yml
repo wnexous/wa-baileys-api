@@ -10,13 +10,13 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/wa_baileys_api?schema=public
+      - DATABASE_URL={DATABASE_URL}
       - SESSION_DIRECTORY=/app/sessions
       - WEBHOOK_URL=${WEBHOOK_URL}
-      - ADMIN_USERNAME="root"
-      - ADMIN_PASSWORD="root"
-      - JWT_SECRET="7b11e7e648b6818c2250207f1cbeb4594bfd171aa5f613c9243dff7dd3a92afcd1a90ca7515caa9f6bfcef20950b0446e9520f3bc98b7af8ac3c098045bfdbd89421f4d4d48c67b5be9aeb4b138f1202dba1adc40bc25bf1957ac62992120e24c5fe39367fecdab4cfcb0d3f22d2fb1d2950e54e39e5c4d137b44f2005defd4baf90b6086ba81514710e890becf2baaea48874ececaacc2762ef25fa9799678b835661c155ca15aa9e47aca0923145a4bd807cc276737d346f93eedacc924c067fca5f47f1af832db6d68c3499dbb59ef1adfec4eacc5cb837d30b8abf73ac8700e68e432142ab06567bba5b525dccc1c091c35800bd977dc094eb408c4206ba"
-      - API_TOKEN="db1bda4ead6257bae8e9cb65ee4473944f5119cdfb81127f59449d6e7474a4d5"
+      - ADMIN_USERNAME={ADMIN_USERNAME}
+      - ADMIN_PASSWORD={ADMIN_PASSWORD}
+      - JWT_SECRET={JWT_SECRET}
+      - API_TOKEN={API_TOKEN}
     volumes:
       - ./sessions:/app/sessions
     depends_on:
