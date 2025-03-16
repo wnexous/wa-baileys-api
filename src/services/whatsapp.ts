@@ -127,7 +127,17 @@ export const deleteWhatsAppSession = async (sessionId: string) => {
       fs.rmSync(sessionPath, { recursive: true, force: true });
     }
 
-    // Delete session from database
+    // First delete all associated messages
+    await prisma.message.deleteMany({
+      where: { sessionId }
+    });
+
+    // Then delete all associated webhooks
+    await prisma.webhook.deleteMany({
+      where: { sessionId }
+    });
+
+    // Finally delete session from database
     await prisma.whatsAppSession.delete({
       where: { sessionId }
     });
