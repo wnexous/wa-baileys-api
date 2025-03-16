@@ -190,8 +190,6 @@ const createWhatsAppSocket = async (sessionId: string): Promise<WASocket> => {
   const { version } = await fetchLatestBaileysVersion();
 
 
-  console.log("FEIJAO")
-
   // Create socket
   const socket = makeWASocket({
     version,
