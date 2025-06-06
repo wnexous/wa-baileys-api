@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { 
   sendTextMessage, 
   sendMediaMessage, 
+  sendButtonMessage,
+  updateChatPresence,
   getMessages,
   getMessageById
 } from '../controllers/message.controller';
@@ -19,6 +21,13 @@ router.post('/text', sendTextMessage);
  * @desc Send a media message (image, video, document, etc.)
  */
 router.post('/media', sendMediaMessage);
+
+/**
+ * @route POST /api/messages/button
+ * @desc Send a message with buttons
+ */
+router.post('/button', sendButtonMessage);
+router.post('/presence', updateChatPresence);
 
 /**
  * @route GET /api/messages

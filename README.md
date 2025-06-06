@@ -1,89 +1,89 @@
 # WhatsApp Baileys API
 
-Uma API REST para WhatsApp usando a biblioteca Baileys, Express e Prisma.
+A REST API for WhatsApp using the Baileys library, Express, and Prisma.
 
-## Descrição
+## Description
 
-Este projeto fornece uma API REST para interagir com o WhatsApp Web usando a biblioteca Baileys. Ele permite:
+This project provides a REST API to interact with WhatsApp Web using the Baileys library. It allows you to:
 
-- Gerenciar múltiplas sessões do WhatsApp
-- Enviar e receber mensagens
-- Configurar webhooks para receber eventos em tempo real
-- Armazenar histórico de mensagens em banco de dados
+- Manage multiple WhatsApp sessions
+- Send and receive messages
+- Configure webhooks to receive real-time events
+- Store message history in a database
 
-## Tecnologias Utilizadas
+## Technologies Used
 
-- **TypeScript**: Linguagem de programação
-- **Express**: Framework web
-- **Baileys**: Biblioteca para interação com WhatsApp Web
-- **Prisma**: ORM para acesso ao banco de dados
-- **PostgreSQL**: Banco de dados relacional
-- **Docker**: Containerização
+- **TypeScript**: Programming language
+- **Express**: Web framework
+- **Baileys**: Library for WhatsApp Web interaction
+- **Prisma**: ORM for database access
+- **PostgreSQL**: Relational database
+- **Docker**: Containerization
 
-## Estrutura do Projeto
+## Project Structure
 
-O projeto segue uma arquitetura componentizada:
+The project follows a component-based architecture:
 
 ```
 wa-baileys-api/
-├── prisma/                  # Configuração e modelos do Prisma
-├── src/                     # Código fonte
-│   ├── controllers/         # Controladores da API
-│   ├── routes/              # Rotas da API
-│   ├── services/            # Serviços de negócio
-│   └── index.ts             # Ponto de entrada da aplicação
-├── .env.example             # Exemplo de variáveis de ambiente
-├── docker-compose.yml       # Configuração do Docker Compose
-├── Dockerfile               # Configuração do Docker
-├── package.json             # Dependências e scripts
-├── tsconfig.json            # Configuração do TypeScript
-└── README.md                # Documentação
+├── prisma/                  # Prisma configuration and models
+├── src/                     # Source code
+│   ├── controllers/         # API controllers
+│   ├── routes/              # API routes
+│   ├── services/            # Business services
+│   └── index.ts             # Application entry point
+├── .env.example             # Example environment variables
+├── docker-compose.yml       # Docker Compose configuration
+├── Dockerfile               # Docker configuration
+├── package.json             # Dependencies and scripts
+├── tsconfig.json            # TypeScript configuration
+└── README.md                # Documentation
 ```
 
-## Instalação e Execução
+## Installation and Setup
 
-### Pré-requisitos
+### Prerequisites
 
-- Node.js 18 ou superior
+- Node.js 18 or higher
 - NPM
-- PostgreSQL (ou Docker para executar o banco de dados)
+- PostgreSQL (or Docker to run the database)
 
-### Configuração
+### Configuration
 
-1. Clone o repositório:
+1. Clone the repository:
    ```bash
    git clone https://github.com/wnexous/wa-baileys-api.git
    cd wa-baileys-api
    ```
 
-2. Instale as dependências:
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Configure as variáveis de ambiente:
+3. Configure environment variables:
    ```bash
    cp .env.example .env
    ```
-   Edite o arquivo `.env` com suas configurações.
+   Edit the `.env` file with your settings.
 
-4. Configure o banco de dados:
+4. Set up the database:
    ```bash
    npm run prisma:migrate
    ```
 
-### Execução Local
+### Running Locally
 
 ```bash
-# Desenvolvimento
+# Development
 npm run dev
 
-# Produção
+# Production
 npm run build
 npm start
 ```
 
-### Execução com Docker
+### Running with Docker
 
 ```bash
 docker-compose up -d
@@ -91,71 +91,125 @@ docker-compose up -d
 
 ## API Endpoints
 
-### Sessões
+### Sessions
 
-- `POST /api/sessions`: Criar uma nova sessão
-- `GET /api/sessions`: Listar todas as sessões
-- `GET /api/sessions/:sessionId`: Obter detalhes de uma sessão
-- `GET /api/sessions/:sessionId/qr`: Obter QR code para autenticação
-- `DELETE /api/sessions/:sessionId`: Excluir uma sessão
+- `POST /api/sessions`: Create a new session
+- `GET /api/sessions`: List all sessions
+- `GET /api/sessions/:sessionId`: Get session details
+- `GET /api/sessions/:sessionId/qr`: Get QR code for authentication
+- `DELETE /api/sessions/:sessionId`: Delete a session
 
-### Mensagens
+### Messages
 
-- `POST /api/messages/text`: Enviar mensagem de texto
-- `POST /api/messages/media`: Enviar mensagem de mídia
-- `GET /api/messages`: Listar mensagens
-- `GET /api/messages/:messageId`: Obter detalhes de uma mensagem
+- `POST /api/messages/text`: Send a text message
+- `POST /api/messages/media`: Send a media message (image, video, audio, document)
+- `POST /api/messages/button`: Send a message with buttons
+- `POST /api/messages/presence`: Update chat presence (e.g., composing, paused)
+- `GET /api/messages`: List messages
+- `GET /api/messages/:messageId`: Get message details
 
 ### Webhooks
 
-- `POST /api/webhooks`: Registrar um novo webhook
-- `GET /api/webhooks`: Listar webhooks
-- `PUT /api/webhooks/:webhookId`: Atualizar um webhook
-- `DELETE /api/webhooks/:webhookId`: Excluir um webhook
+- `POST /api/webhooks`: Register a new webhook
+- `GET /api/webhooks`: List webhooks
+- `PUT /api/webhooks/:webhookId`: Update a webhook
+- `DELETE /api/webhooks/:webhookId`: Delete a webhook
 
 ## Webhooks
 
-Os webhooks permitem receber notificações em tempo real sobre eventos do WhatsApp. Você pode configurar um URL para receber eventos como:
+Webhooks allow you to receive real-time notifications about WhatsApp events. You can configure a URL to receive events such as:
 
-- `connection.open`: Quando uma sessão é conectada
-- `connection.logout`: Quando uma sessão é desconectada
-- `qr.update`: Quando um novo QR code é gerado
-- `messages.received`: Quando uma nova mensagem é recebida
+- `connection.open`: When a session is connected
+- `connection.logout`: When a session is disconnected
+- `qr.update`: When a new QR code is generated
+- `messages.received`: When a new message is received
 
-## Exemplos de Uso
+## Usage Examples
 
-### Criar uma Sessão
+### Create a Session
 
 ```bash
 curl -X POST http://localhost:3000/api/sessions \
   -H "Content-Type: application/json" \
-  -d '{"sessionId": "minha-sessao"}'
+  -d '{"sessionId": "my-session"}'
 ```
 
-### Enviar uma Mensagem
+### Send a Message
 
 ```bash
 curl -X POST http://localhost:3000/api/messages/text \
   -H "Content-Type: application/json" \
   -d '{
-    "sessionId": "minha-sessao",
+    "sessionId": "my-session",
     "jid": "5511999999999@s.whatsapp.net",
-    "text": "Olá, mundo!"
+    "text": "Hello, world!"
   }'
 ```
 
-### Registrar um Webhook
+### Send a Message with Buttons
+
+```bash
+curl -X POST http://localhost:3000/api/messages/button \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "jid": "5511999999999@s.whatsapp.net",
+    "text": "Choose an option:",
+    "footer": "Message footer",
+    "buttons": [
+      { "id": "btn1", "displayText": "Button 1" },
+      { "id": "btn2", "displayText": "Button 2" }
+    ]
+  }'
+```
+
+### Send an Image
+
+To send an image, use the `/api/messages/media` endpoint. The request body must contain a `media` object with an `image` property, which in turn contains a `url` property with the path to the image file or an image Buffer.
+
+**Example with URL:**
+
+```bash
+curl -X POST http://localhost:3000/api/messages/media \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "jid": "5511999999999@s.whatsapp.net",
+    "media": {
+      "image": { "url": "/path/to/your/image.jpg" }
+    },
+    "caption": "Look at this image!"
+  }'
+```
+
+**Note:** To use a URL, the image file must be accessible by the server where the API is running. To send a Buffer, you will need to construct the request programmatically or use a tool that allows sending `multipart/form-data` and adapt the controller to handle file uploads if that is the intention (currently the controller expects `application/json`). The most direct way via JSON is to send the image as a Base64 encoded Buffer and decode it on the backend, or use a URL for a local file.
+
+### Update Chat Presence
+
+```bash
+curl -X POST http://localhost:3000/api/messages/presence \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "jid": "5511999999999@s.whatsapp.net",
+    "presence": "composing"
+  }'
+```
+
+**Valid presence values:** `composing`, `paused`, `recording`, `available`, `unavailable`.
+
+### Register a Webhook
 
 ```bash
 curl -X POST http://localhost:3000/api/webhooks \
   -H "Content-Type: application/json" \
   -d '{
-    "sessionId": "minha-sessao",
-    "url": "https://meu-site.com/webhook",
+    "sessionId": "my-session",
+    "url": "https://my-site.com/webhook",
     "events": ["messages.received", "connection.open"]
   }'
 ```
 
-## Licença
+## License
 
 MIT

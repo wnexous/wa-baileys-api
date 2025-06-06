@@ -14,6 +14,11 @@ import path from 'path';
 import pino, { Logger } from 'pino';
 import { sendWebhookEvent } from './webhook';
 
+interface ButtonOption {
+  id: string;
+  displayText: string;
+}
+
 // Logger
 const logger: Logger = pino({ level: 'warn' });
 
@@ -381,6 +386,76 @@ export const sendMediaMessage = async (
     return msg;
   } catch (error) {
     console.error(`Error sending media message in session ${sessionId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Send a button message
+ */
+export type ChatPresence = 'composing' | 'paused' | 'recording' | 'available' | 'unavailable';
+
+export const updateChatPresence = async (
+  sessionId: string,
+  jid: string,
+  presence: ChatPresence
+) => {
+  const session = sessions.get(sessionId);
+  if (!session || !session.isConnected) throw new Error('Session not connected');
+
+  await session.socket.sendPresenceUpdate(presence, jid);
+  // Optionally, log this action or store it if needed, though presence updates are typically transient.
+  return { sessionId, jid, presence, status: 'updated' };
+};
+
+export const sendButtonMessage = async (
+  sessionId: string,
+  jid: string,
+  text: string,
+  footer: string,
+  buttons: ButtonOption[],
+  options: any = {}
+) => {
+  try {
+    const session = sessions.get(sessionId);
+
+    if (!session || !session.isConnected) {
+      throw new Error('Session not connected');
+    }
+
+    const templateButtons = buttons.map((btn, index) => ({
+      index: index + 1,
+      quickReplyButton: {
+        displayText: btn.displayText,
+        id: btn.id,
+      },
+    }));
+
+    const message = {
+      text,
+      footer,
+      templateButtons,
+      ...options,
+    };
+
+    const msg = await session.socket.sendMessage(jid, message, options);
+
+    // Store message in database
+    if (msg) {
+      await prisma.message.create({
+        data: {
+          messageId: msg.key.id || '',
+          sessionId,
+          jid,
+          content: JSON.stringify(msg),
+          status: 'sent',
+        },
+      });
+    }
+
+    return msg;
+  } catch (error) {
+    console.error(`Error sending button message in session ${sessionId}:`, error);
     throw error;
   }
 };
