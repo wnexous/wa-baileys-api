@@ -435,7 +435,6 @@ export const sendButtonMessage = async (
       text,
       footer,
       templateButtons,
-      ...options,
     };
 
     const msg = await session.socket.sendMessage(jid, message, options);
