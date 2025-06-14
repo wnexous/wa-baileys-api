@@ -482,18 +482,17 @@ export const sendButtonMessage = async (
       throw new Error('Session not connected');
     }
 
-    const templateButtons = buttons.map((btn, index) => ({
-      index: index + 1,
-      quickReplyButton: {
-        displayText: btn.displayText,
-        id: btn.id,
-      },
+    const buttonsMessage = buttons.map((btn) => ({
+      buttonId: btn.id,
+      buttonText: { displayText: btn.displayText },
+      type: 1,
     }));
 
     const message = {
       text,
       footer,
-      templateButtons,
+      buttons: buttonsMessage,
+      headerType: 1,
     };
 
     const msg = await session.socket.sendMessage(jid, message, options);
