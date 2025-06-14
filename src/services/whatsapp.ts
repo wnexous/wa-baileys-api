@@ -1,5 +1,6 @@
 import { Boom } from '@hapi/boom';
 import makeWASocket, {
+  AnyMessageContent,
   DisconnectReason,
   WASocket,
   fetchLatestBaileysVersion,
@@ -482,18 +483,24 @@ export const sendButtonMessage = async (
       throw new Error('Session not connected');
     }
 
-    const buttonsMessage = buttons.map((btn) => ({
+    const buttonArray = buttons.map((btn) => ({
       buttonId: btn.id,
       buttonText: { displayText: btn.displayText },
       type: 1,
     }));
 
-    const message = {
-      text,
-      footer,
-      buttons: buttonsMessage,
+        // Construct proto compliant ButtonsMessage
+    const buttonsMessageProto = {
+      contentText: text,
+      footerText: footer,
+      buttons: buttonArray,
       headerType: 1,
     };
+
+    const message: any = {
+      buttonsMessage: buttonsMessageProto,
+    };
+
 
     const msg = await session.socket.sendMessage(jid, message, options);
 
