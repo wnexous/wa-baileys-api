@@ -1,0 +1,29 @@
+diff --git a/node_modules/@whiskeysockets/baileys/lib/Defaults/index.js b/node_modules/@whiskeysockets/baileys/lib/Defaults/index.js
+--- a/node_modules/@whiskeysockets/baileys/lib/Defaults/index.js
++++ b/node_modules/@whiskeysockets/baileys/lib/Defaults/index.js
+@@
+-    patchMessageBeforeSending: msg => msg,
++    patchMessageBeforeSending: (msg) => {
++        // Auto-convert plain objects with "buttons" array into proto buttonsMessage
++        if (msg && Array.isArray(msg.buttons)) {
++            const { text, footer, buttons, headerType = 1 } = msg;
++
++            const buttonArray = buttons.map((btn) => ({
++                buttonId: btn.buttonId || btn.id,
++                buttonText: btn.buttonText || { displayText: btn.displayText },
++                type: btn.type ?? 1,
++            }));
++
++            return {
++                buttonsMessage: {
++                    contentText: text || '',
++                    footerText: footer || '',
++                    buttons: buttonArray,
++                    headerType,
++                },
++            };
++        }
++
++        return msg;
++    },
+ 
