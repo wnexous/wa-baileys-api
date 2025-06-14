@@ -165,9 +165,12 @@ curl -X POST http://localhost:3000/api/messages/button \
 
 ### Send an Image
 
-To send an image, use the `/api/messages/media` endpoint. The request body must contain a `media` object with an `image` property, which in turn contains a `url` property with the path to the image file or an image Buffer.
+To send an image, use the `/api/messages/media` endpoint. The request body must contain a `media` object with an `image` property. The `url` field can be:
 
-**Example with URL:**
+1. A path to an image file accessible by the server.
+2. A **base64 string** of the image (either raw base64 or a full `data:` URI).
+
+**Example with file URL:**
 
 ```bash
 curl -X POST http://localhost:3000/api/messages/media \
@@ -182,7 +185,26 @@ curl -X POST http://localhost:3000/api/messages/media \
   }'
 ```
 
-**Note:** To use a URL, the image file must be accessible by the server where the API is running. To send a Buffer, you will need to construct the request programmatically or use a tool that allows sending `multipart/form-data` and adapt the controller to handle file uploads if that is the intention (currently the controller expects `application/json`). The most direct way via JSON is to send the image as a Base64 encoded Buffer and decode it on the backend, or use a URL for a local file.
+**Example with base64 (data URI):**
+
+```bash
+curl -X POST http://localhost:3000/api/messages/media \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "jid": "5511999999999@s.whatsapp.net",
+    "media": {
+      "image": {
+        "url": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+      }
+    },
+    "caption": "Base64 image"
+  }'
+```
+
+**Notes:**
+- When providing a file path, the image must be reachable by the API server.
+- When providing a base64 string, you can use a raw base64 string or a full `data:` URI as shown above. The backend will automatically detect and decode it.
 
 ### Update Chat Presence
 

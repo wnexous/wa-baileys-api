@@ -1,17 +1,16 @@
-import makeWASocket, {
-  useMultiFileAuthState,
-  DisconnectReason,
-  fetchLatestBaileysVersion,
-  makeCacheableSignalKeyStore,
-  Browsers,
-  WASocket,
-  isJidUser,
-} from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
-import { prisma } from '../index';
+import makeWASocket, {
+  DisconnectReason,
+  WASocket,
+  fetchLatestBaileysVersion,
+  isJidUser,
+  makeCacheableSignalKeyStore,
+  useMultiFileAuthState
+} from '@whiskeysockets/baileys';
 import fs from 'fs';
 import path from 'path';
 import pino, { Logger } from 'pino';
+import { prisma } from '../index';
 import { sendWebhookEvent } from './webhook';
 
 interface ButtonOption {
@@ -48,7 +47,7 @@ export const initializeWhatsAppSessions = async (): Promise<void> => {
     // Get all sessions from database
     const dbSessions = await prisma.whatsAppSession.findMany();
 
-    
+
     // Initialize each session
     for (const session of dbSessions) {
       try {
@@ -160,17 +159,17 @@ export const deleteWhatsAppSession = async (sessionId: string) => {
 export const getSessionQRCode = async (sessionId: string): Promise<string | null> => {
   console.log(`Getting QR code for session ${sessionId}`);
   const session = sessions.get(sessionId);
-  
+
   if (!session) {
     console.log(`Session ${sessionId} not found in memory`);
     return null;
   }
-  
+
   if (!session.qrCode) {
     console.log(`No QR code available for session ${sessionId}`);
     return null;
   }
-  
+
   console.log(`QR code found for session ${sessionId}`);
   return session.qrCode;
 };
@@ -222,7 +221,7 @@ const createWhatsAppSocket = async (sessionId: string): Promise<WASocket> => {
     // Update QR code
     if (qr) {
       console.log(`QR code received for session ${sessionId}:`, qr.substring(0, 50) + '...');
-      
+
       // Atualizar a sessão no Map
       const session = sessions.get(sessionId);
       if (session) {
@@ -365,10 +364,32 @@ export const sendMediaMessage = async (
       throw new Error('Session not connected');
     }
 
-    const msg = await session.socket.sendMessage(jid, {
-      ...media,
-      caption
-    }, options);
+    // Process media object to support base64 strings in image.url
+    let mediaContent: any = { ...media };
+
+    if (mediaContent.image && mediaContent.image.url && typeof mediaContent.image.url === 'string') {
+      const urlStr: string = mediaContent.image.url;
+      let base64Data: string | null = null;
+
+      // Match data URI format: data:<mime>;base64,<data>
+      const dataUriMatch = urlStr.match(/^data:.*;base64,(.*)$/);
+      if (dataUriMatch) {
+        base64Data = dataUriMatch[1];
+      } else if (/^[A-Za-z0-9+/=]+$/.test(urlStr) && urlStr.length % 4 === 0) {
+        // Bare base64 string (no data URI prefix)
+        base64Data = urlStr;
+      }
+
+      if (base64Data) {
+        mediaContent.image = Buffer.from(base64Data, 'base64');
+      }
+    }
+
+    const msg = await session.socket.sendMessage(
+      jid,
+      { ...mediaContent, caption },
+      options
+    );
 
     // Store message in database
 
