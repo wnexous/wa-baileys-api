@@ -4,7 +4,10 @@ import {
   sendTextMessage as sendTextMessageService, 
   sendMediaMessage as sendMediaMessageService,
   sendButtonMessage as sendButtonMessageService,
-  updateChatPresence as updateChatPresenceService
+  updateChatPresence as updateChatPresenceService,
+  reactToMessage as reactToMessageService,
+  deleteMessage as deleteMessageService,
+  editMessage as editMessageService
 } from '../services/whatsapp';
 
 /**
@@ -242,5 +245,62 @@ export const updateChatPresence = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error updating chat presence:', error);
     res.status(500).json({ error: error.message || 'Failed to update chat presence' });
+  }
+};
+
+/**
+ * React to a message
+ */
+export const reactToMessage = async (req: Request, res: Response) => {
+  const { sessionId, key, reaction, options } = req.body;
+  if (!sessionId || !key || !reaction) {
+    return res.status(400).json({ error: 'Missing required parameters: sessionId, key, reaction' });
+  }
+  try {
+    const session = await prisma.whatsAppSession.findUnique({ where: { sessionId } });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    const result = await reactToMessageService(sessionId, key, reaction, options);
+    res.status(200).json({ message: 'Reaction sent', data: result });
+  } catch (error: any) {
+    console.error('Error reacting to message:', error);
+    res.status(500).json({ error: error.message || 'Failed to react to message' });
+  }
+};
+
+/**
+ * Delete a message
+ */
+export const deleteMessage = async (req: Request, res: Response) => {
+  const { sessionId, key, options } = req.body;
+  if (!sessionId || !key) {
+    return res.status(400).json({ error: 'Missing required parameters: sessionId, key' });
+  }
+  try {
+    const session = await prisma.whatsAppSession.findUnique({ where: { sessionId } });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    const result = await deleteMessageService(sessionId, key, options);
+    res.status(200).json({ message: 'Message deleted', data: result });
+  } catch (error: any) {
+    console.error('Error deleting message:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete message' });
+  }
+};
+
+/**
+ * Edit a message
+ */
+export const editMessage = async (req: Request, res: Response) => {
+  const { sessionId, key, text, options } = req.body;
+  if (!sessionId || !key || !text) {
+    return res.status(400).json({ error: 'Missing required parameters: sessionId, key, text' });
+  }
+  try {
+    const session = await prisma.whatsAppSession.findUnique({ where: { sessionId } });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
+    const result = await editMessageService(sessionId, key, text, options);
+    res.status(200).json({ message: 'Message edited', data: result });
+  } catch (error: any) {
+    console.error('Error editing message:', error);
+    res.status(500).json({ error: error.message || 'Failed to edit message' });
   }
 };

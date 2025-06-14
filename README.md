@@ -105,6 +105,9 @@ docker-compose up -d
 - `POST /api/messages/media`: Send a media message (image, video, audio, document)
 - `POST /api/messages/button`: Send a message with buttons
 - `POST /api/messages/presence`: Update chat presence (e.g., composing, paused)
+- `POST /api/messages/react`: React to a message
+- `POST /api/messages/delete`: Delete a message
+- `POST /api/messages/edit`: Edit a message
 - `GET /api/messages`: List messages
 - `GET /api/messages/:messageId`: Get message details
 
@@ -205,6 +208,41 @@ curl -X POST http://localhost:3000/api/messages/media \
 **Notes:**
 - When providing a file path, the image must be reachable by the API server.
 - When providing a base64 string, you can use a raw base64 string or a full `data:` URI as shown above. The backend will automatically detect and decode it.
+
+### React to a Message
+
+```bash
+curl -X POST http://localhost:3000/api/messages/react \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "key": { "remoteJid": "5511999999999@s.whatsapp.net", "id": "MESSAGE_ID" },
+    "reaction": "👍"
+  }'
+```
+
+### Delete a Message
+
+```bash
+curl -X POST http://localhost:3000/api/messages/delete \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "key": { "remoteJid": "5511999999999@s.whatsapp.net", "id": "MESSAGE_ID" }
+  }'
+```
+
+### Edit a Message
+
+```bash
+curl -X POST http://localhost:3000/api/messages/edit \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "key": { "remoteJid": "5511999999999@s.whatsapp.net", "id": "MESSAGE_ID" },
+    "text": "Edited text"
+  }'
+```
 
 ### Update Chat Presence
 

@@ -4,6 +4,9 @@ import {
   sendMediaMessage, 
   sendButtonMessage,
   updateChatPresence,
+  reactToMessage,
+  deleteMessage,
+  editMessage,
   getMessages,
   getMessageById
 } from '../controllers/message.controller';
@@ -28,6 +31,9 @@ router.post('/media', sendMediaMessage);
  */
 router.post('/button', sendButtonMessage);
 router.post('/presence', updateChatPresence);
+router.post('/react', reactToMessage);
+router.post('/delete', deleteMessage);
+router.post('/edit', editMessage);
 
 /**
  * @route GET /api/messages

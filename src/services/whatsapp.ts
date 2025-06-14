@@ -429,6 +429,44 @@ export const updateChatPresence = async (
   return { sessionId, jid, presence, status: 'updated' };
 };
 
+export const reactToMessage = async (
+  sessionId: string,
+  key: any,
+  reaction: string,
+  options: any = {}
+) => {
+  const session = sessions.get(sessionId);
+  if (!session || !session.isConnected) throw new Error('Session not connected');
+
+  return session.socket.sendMessage(key.remoteJid || key.participant || '', {
+    react: {
+      text: reaction,
+      key
+    }
+  }, options);
+};
+
+export const deleteMessage = async (
+  sessionId: string,
+  key: any,
+  options: any = {}
+) => {
+  const session = sessions.get(sessionId);
+  if (!session || !session.isConnected) throw new Error('Session not connected');
+  return session.socket.sendMessage(key.remoteJid || key.participant || '', { delete: key }, options);
+};
+
+export const editMessage = async (
+  sessionId: string,
+  key: any,
+  text: string,
+  options: any = {}
+) => {
+  const session = sessions.get(sessionId);
+  if (!session || !session.isConnected) throw new Error('Session not connected');
+  return session.socket.sendMessage(key.remoteJid || key.participant || '', { edit: key, text }, options);
+};
+
 export const sendButtonMessage = async (
   sessionId: string,
   jid: string,
