@@ -104,6 +104,7 @@ docker-compose up -d
 - `POST /api/messages/text`: Send a text message
 - `POST /api/messages/media`: Send a media message (image, video, audio, document)
 - `POST /api/messages/button`: Send a message with buttons
+- `POST /api/messages/audio`: Send an audio message (voice note or regular audio)
 - `POST /api/messages/presence`: Update chat presence (e.g., composing, paused)
 - `POST /api/messages/react`: React to a message
 - `POST /api/messages/delete`: Delete a message
@@ -208,6 +209,43 @@ curl -X POST http://localhost:3000/api/messages/media \
 **Notes:**
 - When providing a file path, the image must be reachable by the API server.
 - When providing a base64 string, you can use a raw base64 string or a full `data:` URI as shown above. The backend will automatically detect and decode it.
+
+### Send an Audio Message
+
+To send audio, use the `/api/messages/audio` endpoint. The request body must contain an `audio` object. The `url` field can be:
+
+1. A path to an audio file accessible by the server.
+2. A **base64 string** of the audio (either raw base64 or a full `data:` URI).
+
+Optionally, set `ptt` to `true` to send the audio as a voice note.
+
+**Example with file URL:**
+
+```bash
+curl -X POST http://localhost:3000/api/messages/audio \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "jid": "5511999999999@s.whatsapp.net",
+    "audio": { "url": "/path/to/your/audio.mp3" },
+    "ptt": false
+  }'
+```
+
+**Example with base64 (data URI) as voice note:**
+
+```bash
+curl -X POST http://localhost:3000/api/messages/audio \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "my-session",
+    "jid": "5511999999999@s.whatsapp.net",
+    "audio": {
+      "url": "data:audio/ogg;base64,T2dnUwACAAAAAAAAAACZ..."
+    },
+    "ptt": true
+  }'
+```
 
 ### React to a Message
 

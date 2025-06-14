@@ -3,6 +3,7 @@ import {
   sendTextMessage, 
   sendMediaMessage, 
   sendButtonMessage,
+  sendAudioMessage,
   updateChatPresence,
   reactToMessage,
   deleteMessage,
@@ -24,6 +25,12 @@ router.post('/text', sendTextMessage);
  * @desc Send a media message (image, video, document, etc.)
  */
 router.post('/media', sendMediaMessage);
+
+/**
+ * @route POST /api/messages/audio
+ * @desc Send an audio message
+ */
+router.post('/audio', sendAudioMessage);
 
 /**
  * @route POST /api/messages/button

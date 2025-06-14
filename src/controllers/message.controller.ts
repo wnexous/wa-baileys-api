@@ -3,6 +3,7 @@ import { prisma } from '../index';
 import { 
   sendTextMessage as sendTextMessageService, 
   sendMediaMessage as sendMediaMessageService,
+  sendAudioMessage as sendAudioMessageService,
   sendButtonMessage as sendButtonMessageService,
   updateChatPresence as updateChatPresenceService,
   reactToMessage as reactToMessageService,
@@ -88,6 +89,47 @@ export const sendMediaMessage = async (req: Request, res: Response) => {
     return res.status(500).json({ 
       error: 'Failed to send media message',
       message: error.message
+    });
+  }
+};
+
+/**
+ * Send an audio message
+ */
+export const sendAudioMessage = async (req: Request, res: Response) => {
+  try {
+    const { sessionId, jid, audio, ptt = false, options } = req.body;
+
+    if (!sessionId || !jid || !audio) {
+      return res.status(400).json({
+        error: 'Missing required parameters: sessionId, jid, audio',
+      });
+    }
+
+    // Check if session exists
+    const session = await prisma.whatsAppSession.findUnique({ where: { sessionId } });
+
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Send message via service
+    const message = await sendAudioMessageService(sessionId, jid, audio, ptt, options);
+
+    return res.status(200).json({
+      message: 'Audio message sent successfully',
+      data: message
+        ? {
+            id: message.key.id,
+            timestamp: message.messageTimestamp,
+          }
+        : null,
+    });
+  } catch (error: any) {
+    console.error('Error sending audio message:', error);
+    return res.status(500).json({
+      error: 'Failed to send audio message',
+      message: error.message,
     });
   }
 };

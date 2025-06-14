@@ -413,6 +413,67 @@ export const sendMediaMessage = async (
 };
 
 /**
+ * Send an audio message (voice note or regular audio)
+ */
+export const sendAudioMessage = async (
+  sessionId: string,
+  jid: string,
+  audio: any,
+  ptt: boolean = false,
+  options: any = {}
+) => {
+  try {
+    const session = sessions.get(sessionId);
+    if (!session || !session.isConnected) {
+      throw new Error('Session not connected');
+    }
+
+    // Handle base64 or data URI audio
+    let audioContent: any = { ...audio };
+    if (audioContent.url && typeof audioContent.url === 'string') {
+      const urlStr: string = audioContent.url;
+      let base64Data: string | null = null;
+      const dataUriMatch = urlStr.match(/^data:audio\/.*;base64,(.*)$/);
+      if (dataUriMatch) {
+        base64Data = dataUriMatch[1];
+      } else if (/^[A-Za-z0-9+/=]+$/.test(urlStr) && urlStr.length % 4 === 0) {
+        base64Data = urlStr;
+      }
+      if (base64Data) {
+        audioContent = Buffer.from(base64Data, 'base64');
+      }
+    }
+
+    const msg = await session.socket.sendMessage(
+      jid,
+      {
+        audio: audioContent,
+        mimetype: (audioContent as any).mimetype || 'audio/mpeg',
+        ptt,
+      },
+      options
+    );
+
+    if (msg) {
+      await prisma.message.create({
+        data: {
+          messageId: msg.key.id || '',
+          sessionId,
+          jid,
+          content: JSON.stringify(msg),
+          status: 'sent',
+        },
+      });
+    }
+
+    return msg;
+  } catch (error) {
+    console.error(`Error sending audio message in session ${sessionId}:`, error);
+    throw error;
+  }
+};
+
+/**
  * Send a button message
  */
 export type ChatPresence = 'composing' | 'paused' | 'recording' | 'available' | 'unavailable';
@@ -489,16 +550,12 @@ export const sendButtonMessage = async (
       type: 1,
     }));
 
-        // Construct proto compliant ButtonsMessage
-    const buttonsMessageProto = {
-      contentText: text,
-      footerText: footer,
+        // Baileys will detect the presence of "buttons" & auto-convert to proto via patchMessageBeforeSending
+    const message: any = {
+      text,
+      footer,
       buttons: buttonArray,
       headerType: 1,
-    };
-
-    const message: any = {
-      buttonsMessage: buttonsMessageProto,
     };
 
 
